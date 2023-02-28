@@ -27,3 +27,10 @@ password: bfb036ac
 内网访问地址: https://149.28.42.121:806/f54aac428
 username: admin
 password: rCURlTBrYb2HjdbD
+
+
+==================================================================
+外网面板地址: http://SERVER_IP:22803/997b95e8
+内网面板地址: http://:22803/997b95e8
+username: skdn4ksj
+password: bb2ebb16
