@@ -10,10 +10,12 @@ import (
 
 // User is the golang structure for table user.
 type User struct {
-	Id         uint        `json:"id"         description:"User ID"`
-	Passport   string      `json:"passport"   description:"User Passport"`
-	Password   string      `json:"password"   description:"User Password"`
-	Nickname   string      `json:"nickname"   description:"User Nickname"`
-	CreateTime *gtime.Time `json:"createTime" description:"Created Time"`
-	UpdateTime *gtime.Time `json:"updateTime" description:"Updated Time"`
+	Id         int64       `json:"id"         description:"主键"`
+	UserId     int64       `json:"userId"     description:"用户id"`
+	Passport   string      `json:"passport"   description:"用户名"`
+	Password   string      `json:"password"   description:"密码"`
+	Nickname   string      `json:"nickname"   description:"昵称"`
+	CreateTime *gtime.Time `json:"createTime" description:"创建时间"`
+	UpdateTime *gtime.Time `json:"updateTime" description:"更新时间"`
+	IsDelete   bool        `json:"isDelete"   description:"是否删除"`
 }

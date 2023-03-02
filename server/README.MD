@@ -30,7 +30,8 @@ password: rCURlTBrYb2HjdbD
 
 
 ==================================================================
-外网面板地址: http://SERVER_IP:22803/997b95e8
-内网面板地址: http://:22803/997b95e8
-username: skdn4ksj
-password: bb2ebb16
+外网面板地址: http://SERVER_IP:11130/f7a82874
+内网面板地址: http://:11130/f7a82874
+username: yutylx6n
+password: 188d5341
+If you cannot acce
