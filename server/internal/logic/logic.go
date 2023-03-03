@@ -6,6 +6,8 @@ package logic
 
 import (
 	_ "server/internal/logic/bizctx"
+	_ "server/internal/logic/invite"
+	_ "server/internal/logic/note"
 	_ "server/internal/logic/session"
 	_ "server/internal/logic/user"
 )
