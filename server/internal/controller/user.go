@@ -14,11 +14,7 @@ import (
 )
 
 // UserController is the controller for user.
-var localUserController = userController{}
-
-func NewUserController() *userController {
-	return &localUserController
-}
+var UserController = userController{}
 
 type userController struct{}
 

@@ -6,10 +6,13 @@ import (
 	"server/internal/model"
 	"server/internal/model/do"
 	"server/internal/model/entity"
+	"server/internal/packed"
 	"server/internal/service"
 
+	"github.com/gogf/gf/v2/crypto/gmd5"
 	"github.com/gogf/gf/v2/database/gdb"
 	"github.com/gogf/gf/v2/errors/gerror"
+	"github.com/gogf/gf/v2/os/gtime"
 )
 
 type (
@@ -33,14 +36,6 @@ func (s *sUser) Create(ctx context.Context, in model.UserCreateInput) (err error
 	var (
 		available bool
 	)
-	// Passport checks.
-	available, err = s.IsPassportAvailable(ctx, in.Passport)
-	if err != nil {
-		return err
-	}
-	if !available {
-		return gerror.Newf(`Passport "%s" is already token by others`, in.Passport)
-	}
 	// Nickname checks.
 	available, err = s.IsNicknameAvailable(ctx, in.Nickname)
 	if err != nil {
@@ -49,11 +44,26 @@ func (s *sUser) Create(ctx context.Context, in model.UserCreateInput) (err error
 	if !available {
 		return gerror.Newf(`Nickname "%s" is already token by others`, in.Nickname)
 	}
+	// Passport checks.
+	available, err = s.IsPassportAvailable(ctx, in.Passport)
+	if err != nil {
+		return err
+	}
+	if !available {
+		return gerror.Newf(`Passport "%s" is already token by others`, in.Passport)
+	}
+	encryptSt, err := gmd5.EncryptString(in.Password)
+	if err != nil {
+		return err
+	}
 	return dao.User.Transaction(ctx, func(ctx context.Context, tx gdb.TX) error {
 		_, err = dao.User.Ctx(ctx).Data(do.User{
-			Passport: in.Passport,
-			Password: in.Password,
-			Nickname: in.Nickname,
+			UserId:     packed.IDGenerator.Generate().Int64(),
+			Passport:   in.Passport,
+			Password:   encryptSt,
+			Nickname:   in.Nickname,
+			CreateTime: gtime.Now(),
+			UpdateTime: gtime.Now(),
 		}).Insert()
 		return err
 	})
@@ -70,9 +80,13 @@ func (s *sUser) IsSignedIn(ctx context.Context) bool {
 // SignIn creates session for given user account.
 func (s *sUser) SignIn(ctx context.Context, in model.UserSignInInput) (err error) {
 	var user *entity.User
+	encryptSt, err := gmd5.EncryptString(in.Password)
+	if err != nil {
+		return err
+	}
 	err = dao.User.Ctx(ctx).Where(do.User{
 		Passport: in.Passport,
-		Password: in.Password,
+		Password: encryptSt,
 	}).Scan(&user)
 	if err != nil {
 		return err
@@ -84,7 +98,7 @@ func (s *sUser) SignIn(ctx context.Context, in model.UserSignInInput) (err error
 		return err
 	}
 	service.BizCtx().SetUser(ctx, &model.ContextUser{
-		Id:       user.Id,
+		UserId:   user.UserId,
 		Passport: user.Passport,
 		Nickname: user.Nickname,
 	})

@@ -3,9 +3,7 @@ package cmd
 import (
 	"context"
 	"server/internal/consts"
-	"server/internal/mw/auth"
-	"server/internal/mw/bizctx"
-	"server/internal/mw/cors"
+	"server/internal/mw"
 	"server/utility/resp"
 
 	"github.com/gogf/gf/v2/util/gmode"
@@ -46,27 +44,30 @@ var (
 					r.Response.Header().Set("Cache-Control", "no-store")
 				})
 			}
-
-			s.Use(ghttp.MiddlewareHandlerResponse)
+			s.Use(
+				mw.LogMiddleware,
+				ghttp.MiddlewareHandlerResponse,
+				ghttp.MiddlewareCORS,
+			)
 			s.Group("/", func(group *ghttp.RouterGroup) {
 				group.Middleware(
-					bizctx.NewCtxMiddleware().Do,
-					cors.NewCorsMiddleware().Do,
+					mw.CtxMiddleware,
 				)
 				group.Bind(
 					controller.Hello,
-					controller.NewUserController(),
+					controller.UserController,
+					controller.NoteController,
 				)
 				// 权限控制路由
 
 				// Special handler that needs authentication.
 				group.Group("/", func(group *ghttp.RouterGroup) {
 					group.Middleware(
-						auth.NewAuthMiddleware().Do,
-						//cors.NewCorsMiddleware().Do,
+						mw.AuthMiddleware,
 					)
 					group.Bind(
-						controller.NewUserController().Profile,
+						controller.UserController.Profile,
+						controller.NoteController,
 					)
 				})
 
@@ -89,12 +90,13 @@ func enhanceOpenAPIDoc(s *ghttp.Server) {
 		Title:       consts.OpenAPITitle,
 		Description: consts.OpenAPIDescription,
 		Contact: &goai.Contact{
-			Name: "GoFrame",
-			URL:  "https://goframe.org",
+			Name: "zero",
+			URL:  "",
 		},
 	}
 
 	openapi.Tags = &goai.Tags{
 		{Name: consts.OpenAPITagNameUser},
+		{Name: consts.OpenAPITagNameNote},
 	}
 }

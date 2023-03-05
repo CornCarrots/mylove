@@ -7,13 +7,13 @@ import (
 	"server/internal/model"
 	"server/internal/model/do"
 	"server/internal/model/entity"
+	"server/internal/packed"
 	"server/internal/service"
 
 	"github.com/gogf/gf/v2/database/gdb"
 	"github.com/gogf/gf/v2/errors/gerror"
 	"github.com/gogf/gf/v2/os/gtime"
 	"github.com/gogf/gf/v2/text/gstr"
-	"github.com/gogf/gf/v2/util/guid"
 )
 
 type (
@@ -32,14 +32,15 @@ func (s sNote) CreateNote(ctx context.Context, in model.NoteCreateInput) (err er
 	if gstr.LenRune(in.Content) == 0 {
 		return gerror.New(`content is empty`)
 	}
-	if in.UserId == 0 {
-		return gerror.New(`UserId is invalid`)
+	user := service.Session().GetUser(ctx)
+	if user == nil {
+		return gerror.New(`user don't login`)
 	}
 	return dao.Note.Transaction(ctx, func(ctx context.Context, tx gdb.TX) error {
 		_, err = dao.Note.Ctx(ctx).Data(do.Note{
-			NoteId:     guid.S(),
+			NoteId:     packed.IDGenerator.Generate().Int64(),
 			Content:    in.Content,
-			UserId:     in.UserId,
+			UserId:     user.UserId,
 			NoteType:   consts.NoteTypeEnumWishNote,
 			Status:     consts.NoteStatusEnumActive,
 			CreateTime: gtime.Now(),
@@ -60,6 +61,9 @@ func (s sNote) QueryNote(ctx context.Context, query *model.NoteQuery) (list []*e
 		}
 		if query.NoteId != nil {
 			db = db.Where(do.Note{NoteId: *query.NoteId})
+		}
+		if query.NoteType > 0 {
+			db = db.Where(do.Note{NoteType: query.NoteType})
 		}
 	}
 	err = db.OrderDesc(dao.Note.Columns().CreateTime).Scan(&list)

@@ -8,7 +8,7 @@ type Context struct {
 }
 
 type ContextUser struct {
-	Id       int64  // User ID.
+	UserId   int64  // User ID.
 	Passport string // User passport.
 	Nickname string // User nickname.
 }
