@@ -136,3 +136,16 @@ func (s *sUser) IsNicknameAvailable(ctx context.Context, nickname string) (bool,
 func (s *sUser) GetProfile(ctx context.Context) *entity.User {
 	return service.Session().GetUser(ctx)
 }
+
+func (s *sUser) MGetUser(ctx context.Context, uidList []int64) (res map[int64]*entity.User, err error) {
+	var list []*entity.User
+	err = dao.User.Ctx(ctx).WhereIn("user_id", uidList).Scan(&list)
+	if err != nil {
+		return nil, err
+	}
+	res = make(map[int64]*entity.User, len(list))
+	for _, user := range list {
+		res[user.UserId] = user
+	}
+	return res, nil
+}

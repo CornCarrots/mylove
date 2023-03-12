@@ -20,6 +20,7 @@ type (
 		IsPassportAvailable(ctx context.Context, passport string) (bool, error)
 		IsNicknameAvailable(ctx context.Context, nickname string) (bool, error)
 		GetProfile(ctx context.Context) *entity.User
+		MGetUser(ctx context.Context, uidList []int64) (res map[int64]*entity.User, err error)
 	}
 )
 

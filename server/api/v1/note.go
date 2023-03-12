@@ -2,7 +2,7 @@ package v1
 
 import (
 	"server/internal/consts"
-	"server/internal/model/entity"
+	"server/internal/model"
 
 	"github.com/gogf/gf/v2/frame/g"
 )
@@ -20,5 +20,5 @@ type QueryNoteReq struct {
 	CommonPaginationReq
 }
 type QueryNoteRes struct {
-	NoteList []*entity.Note
+	NoteList []*model.NoteVO
 }

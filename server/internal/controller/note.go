@@ -23,6 +23,25 @@ func (c *noteController) QueryNote(ctx context.Context, req *v1.QueryNoteReq) (r
 		NoteType: req.NoteType,
 	}
 	res = &v1.QueryNoteRes{}
-	res.NoteList, err = service.Note().QueryNote(ctx, query)
+	noteList, err := service.Note().QueryNote(ctx, query)
+	if err != nil {
+		return nil, err
+	}
+	uidList := make([]int64, 0)
+	for _, note := range noteList {
+		uidList = append(uidList, note.UserId)
+	}
+	userMap, err := service.User().MGetUser(ctx, uidList)
+	if err != nil {
+		return nil, err
+	}
+	noteVOList := make([]*model.NoteVO, 0, len(noteList))
+	for _, note := range noteList {
+		noteVOList = append(noteVOList, &model.NoteVO{
+			Note: note,
+			User: userMap[note.UserId],
+		})
+	}
+	res.NoteList = noteVOList
 	return
 }
